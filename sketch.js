@@ -11,9 +11,11 @@ function draw() {
   rect(width - s, 0, s, s);
   rect(width - s, height - s, s, s);
 
-  text("Wang Xuefang", width / 2, height / 2);
-  textAlign("center");
   textSize(60);
+  textFont("Futura");
+  fill("#FF0D92");
+  text("Wang Xuefang", width / 2, height / 2);
+  textAlign(CENTER, CENTER);
 }
 
 function windowResized() {
