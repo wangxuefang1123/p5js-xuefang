@@ -19,6 +19,9 @@ let floatOffsets = {
   hex: 0,
 };
 
+let maskSize = 220;
+let targetMaskSize = 220;
+
 function preload() {
   img_1 = loadImage("./assets/cianotipia01.png");
   img_2 = loadImage("./assets/cianotipia02.png");
@@ -94,6 +97,16 @@ function draw() {
   fill("white");
   rect(950, 250 + floatOffsets.square, 320);
 
+  fill("black");
+  textFont(font);
+  textSize(30);
+  text("SPAZIO", 1150, 520 + floatOffsets.square);
+
+  fill("black");
+  textFont(font);
+  textSize(30);
+  text("LIMINE", 1150, 550 + floatOffsets.square);
+
   //正六边形
   stroke(0);
   strokeWeight(2);
@@ -102,12 +115,15 @@ function draw() {
 
   image(logo_2, 740, 130 + floatOffsets.hex, 220, 250);
 
+  targetMaskSize = mouseIsPressed ? 350 : 220; // 按下变大，松开变回
+  maskSize = lerp(maskSize, targetMaskSize, 0.1); // 平滑过渡
+
   push();
   beginClip();
   if (useCircle) {
-    ellipse(mouseX, mouseY, 220, 220); // 圆形遮罩
+    ellipse(mouseX, mouseY, maskSize, maskSize); // 圆形遮罩
   } else {
-    rect(mouseX - 100, mouseY - 100, 220, 220); // 方形遮罩（中心对齐）
+    rect(mouseX - maskSize / 2, mouseY - maskSize / 2, maskSize, maskSize); // 方形遮罩（中心对齐）
   }
   endClip();
 
