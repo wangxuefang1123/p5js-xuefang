@@ -1,4 +1,15 @@
+let speed = 0.05;
+let amplitude = 5;
+
 /** @typedef {import("./p5").Image} Image */
+
+/** @type {Image} */
+let img_1_source;
+/** @type {Image} */
+let img_2_source;
+
+/** @type {number} */
+let aspectRatio;
 
 /** @type {Image} */
 let img_1;
@@ -23,8 +34,8 @@ let maskSize = 220;
 let targetMaskSize = 220;
 
 function preload() {
-  img_1 = loadImage("./assets/cianotipia01.png");
-  img_2 = loadImage("./assets/cianotipia02.png");
+  img_1_source = loadImage("./assets/cianotipia01.png");
+  img_2_source = loadImage("./assets/cianotipia02.png");
   logo_1 = loadImage("./assets/spaziolimine-logo.png");
   logo_2 = loadImage("./assets/logoo.png");
   font = loadFont("./assets/FunnelDisplay-Light.ttf");
@@ -32,8 +43,8 @@ function preload() {
 
 function setup() {
   createCanvas(windowWidth, windowHeight);
-  img_1.resize(width, 0);
-  img_2.resize(width, 0);
+  aspectRatio = img_1_source.width / (img_1_source.height * 2);
+  resizeImages();
 }
 
 // 画六边形
@@ -51,12 +62,12 @@ function drawHexagon(x, y, r) {
 function draw() {
   background(220);
 
-  t += 0.03; // 控制速度，可调小一点更慢
+  t += speed; // 控制速度，可调小一点更慢
 
-  floatOffsets.rect1 = sin(t) * 5;
-  floatOffsets.rect2 = sin(t + PI / 2) * 5;
-  floatOffsets.square = sin(t + PI) * 5;
-  floatOffsets.hex = sin(t + PI * 1.5) * 5;
+  floatOffsets.rect1 = sin(t) * amplitude;
+  floatOffsets.rect2 = sin(t + PI / 2) * amplitude;
+  floatOffsets.square = sin(t + PI) * amplitude;
+  floatOffsets.hex = sin(t + PI * 1.5) * amplitude;
 
   //上层遮盖图
   fill(255);
@@ -66,54 +77,62 @@ function draw() {
   //logo
   push();
   noSmooth();
-  image(logo_1, 10, 10, 250, 125);
+  let rapporto = 245 / 125;
+  let dimensione = height / 3;
+  image(logo_1, 10, 10, dimensione, dimensione / rapporto);
   pop();
 
   //第一个长方形
   stroke(0);
   strokeWeight(2);
   fill("white");
-  rect(150, 200 + floatOffsets.rect1, 450, 300);
+  rect(width / 10, height / 3 + floatOffsets.rect1, width / 3, height / 2.5);
 
   fill("black");
   textFont(font);
   textSize(30);
-  text("SPAZIO", 165, 240 + floatOffsets.rect1);
+  text("SPAZIO", width / 6.5, height / 2.6 + floatOffsets.rect1);
 
   fill("black");
   textFont(font);
   textSize(30);
-  text("LIMINE", 385, 480 + floatOffsets.rect1);
+  text("LIMINE", width / 4, height / 1.4 + floatOffsets.rect1);
 
   //第二个长方形
   stroke(0);
   strokeWeight(2);
   fill("white");
-  rect(500, 300 + floatOffsets.rect2, 270, 320);
+  rect(width / 3, height / 2.5 + floatOffsets.rect2, width / 5, height / 2);
 
   //最后一个正方形
   stroke(0);
   strokeWeight(2);
   fill("white");
-  rect(950, 250 + floatOffsets.square, 320);
+  rect((width / 4) * 3, height / 3 + floatOffsets.square, width / 4.5);
 
   fill("black");
   textFont(font);
   textSize(30);
-  text("SPAZIO", 1150, 520 + floatOffsets.square);
+  text("SPAZIO", (width / 4) * 3.5, height / 1.5 + floatOffsets.square);
 
   fill("black");
   textFont(font);
   textSize(30);
-  text("LIMINE", 1150, 550 + floatOffsets.square);
+  text("LIMINE", (width / 4) * 3.5, height / 1.4 + floatOffsets.square);
 
   //正六边形
   stroke(0);
   strokeWeight(2);
   fill("white");
-  drawHexagon(850, 250 + floatOffsets.hex, 200);
+  drawHexagon(width / 1.65, height / 2.5 + floatOffsets.hex, height / 3.5);
 
-  image(logo_2, 740, 130 + floatOffsets.hex, 220, 250);
+  image(
+    logo_2,
+    width / 1.89,
+    height / 4.4 + floatOffsets.hex,
+    width / 6.5,
+    height / 3
+  );
 
   targetMaskSize = mouseIsPressed ? 350 : 220; // 按下变大，松开变回
   maskSize = lerp(maskSize, targetMaskSize, 0.1); // 平滑过渡
@@ -138,4 +157,34 @@ function mousePressed() {
 
 function windowResized() {
   resizeCanvas(windowWidth, windowHeight);
+  resizeImages();
+}
+
+function resizeImages() {
+  img_1 = img_1_source.get();
+  img_2 = img_2_source.get();
+
+  const r = getCoverRect(aspectRatio);
+  img_1.resize(0, r.h / 2);
+  img_2.resize(0, r.h / 2);
+}
+
+function getCoverRect(targetAspectRatio) {
+  let canvasAspect = width / height;
+  let rectWidth, rectHeight;
+
+  if (canvasAspect < targetAspectRatio) {
+    // Canvas is wider: match height, crop width
+    rectHeight = height;
+    rectWidth = rectHeight * targetAspectRatio;
+  } else {
+    // Canvas is taller: match width, crop height
+    rectWidth = width;
+    rectHeight = rectWidth / targetAspectRatio;
+  }
+
+  let x = (width - rectWidth) / 2;
+  let y = (height - rectHeight) / 2;
+
+  return { x, y, w: rectWidth, h: rectHeight };
 }
